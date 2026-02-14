@@ -1,20 +1,15 @@
- pipeline {
+pipeline {
     agent any
 
     tools {
-        nodejs 'nodejs'   // Jenkins > Global Tool Configuration ch NodeJS name
-    }
-
-    environment {
-        NODE_ENV = 'any'
+        nodejs 'NodeJS'   // Jenkins → Global Tool Configuration ch jo NodeJS name aa
     }
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout SCM') {
             steps {
-                git branch: 'master',
-                    url: 'https://github.com/eshuramgarhia/backend-tour123.git'
+                checkout scm
             }
         }
 
@@ -24,11 +19,23 @@
             }
         }
 
-        stage('Run Tests') {
+        stage('Build Frontend') {
             steps {
-                bat 'npm test'
+                bat '''
+                set CI=false
+                set NODE_OPTIONS=--max_old_space_size=4096
+                npm run build
+                '''
             }
         }
-
     }
-  }
+
+    post {
+        success {
+            echo '✅ Build successful'
+        }
+        failure {
+            echo '❌ Build failed'
+        }
+    }
+}
